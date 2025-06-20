@@ -7,7 +7,7 @@
 
 ## Architecture Diagram
 
-![Architecture Diagram](architecture.png)
+![Architecture Diagram](Image%20Processing%20Architecture.png)
 
 ## AWS Services Used
 
