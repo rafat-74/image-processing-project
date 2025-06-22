@@ -2,59 +2,79 @@
 
 ## Project Overview
 
-هذا المشروع عبارة عن تطبيق لمعالجة الصور باستخدام الخدمات السحابية من AWS، بدون استخدام أي سيرفرات (Serverless).  
-يعتمد التطبيق على رفع الصور إلى خدمة Amazon S3، حيث يتم تشغيل دالة AWS Lambda تلقائيًا عند رفع أي صورة، وتقوم هذه الدالة بمعالجة الصورة (مثل تغيير حجمها) وحفظ النسخة المعالجة في S3 Bucket آخر.
+This project implements a simple serverless image processing workflow using AWS services. Users upload an image to an S3 input bucket, which triggers a Lambda function to process the image (e.g., resizing). The processed image is stored in another S3 output bucket and made accessible via CloudFront.
+
+---
 
 ## Architecture Diagram
 
-![Architecture Diagram](Image%20Processing%20Architecture.png)
+![Architecture](architecture.png)
+
+---
 
 ## AWS Services Used
 
-- Amazon S3: لتخزين الصور الأصلية والنسخ المعالجة.
-- AWS Lambda: لتنفيذ كود المعالجة تلقائيًا عند رفع الصور.
-- IAM: للتحكم في صلاحيات الوصول بين Lambda وS3.
-- Amazon CloudWatch: لمراقبة الأداء وتسجيل الأحداث.
+- **Amazon S3**: For storing input and output images.
+- **AWS Lambda**: For serverless image processing.
+- **Amazon API Gateway**: To upload images via HTTP request.
+- **Amazon CloudFront**: To distribute processed images globally via CDN.
+- **Amazon CloudWatch**: For logging and monitoring.
+- **IAM**: To securely manage access permissions.
 
-(خدمات إضافية اختيارية يمكن استخدامها مثل API Gateway أو DynamoDB)
+---
 
-## How it Works
+## How It Works
 
-1. يقوم المستخدم برفع صورة إلى الـ S3 Bucket الرئيسي.
-2. يتم تشغيل دالة Lambda تلقائيًا عند رفع الصورة.
-3. تقوم Lambda بمعالجة الصورة (مثل تغيير الأبعاد).
-4. يتم حفظ النسخة المعالجة في S3 Bucket مختلف.
+1. The user uploads an image through API Gateway.
+2. The image is stored in the S3 input bucket.
+3. An S3 trigger invokes the Lambda function.
+4. Lambda processes the image (e.g., resizes it).
+5. The result is stored in the output S3 bucket.
+6. The processed image is accessed via CloudFront.
+
+---
 
 ## Setup Instructions
 
-### المتطلبات الأساسية
+### Prerequisites
 
-- حساب AWS مفعل
-- صلاحيات لإنشاء خدمات S3 وLambda وIAM
-- Python 3 مثبت على جهازك
+- An active AWS account.
+- IAM role with permissions for S3, Lambda, and CloudWatch.
+- Python 3 installed locally.
+- [Pillow](https://pypi.org/project/Pillow/) library installed.
 
-### خطوات التنفيذ
+### Steps
 
-1. إنشاء Bucket أول باسم مثلاً `input-bucket`
-2. إنشاء Bucket ثاني باسم مثلاً `output-bucket`
-3. تجهيز كود Lambda باستخدام لغة Python ومكتبة Pillow
-4. رفع الكود على AWS Lambda وربطه بـ input-bucket عن طريق Trigger
-5. اختبار النظام عن طريق رفع صورة ومتابعة الناتج في Bucket الثاني
+1. Create two S3 buckets:
+   - `input-bucket` (for original images)
+   - `output-bucket` (for processed images)
+2. Write the Lambda function using Python and Pillow.
+3. Package the Lambda function and dependencies into a `.zip` file.
+4. Deploy the Lambda and configure it with an S3 trigger.
+5. Set up API Gateway to receive uploads and put images in the input bucket.
+6. Configure CloudFront to serve files from the output bucket.
+7. Use CloudWatch to monitor Lambda execution and logs.
+
+---
 
 ## Security
 
-- يجب استخدام IAM Roles بصلاحيات محدودة فقط لما تحتاجه Lambda.
-- يُفضل تفعيل S3 Bucket Policy لتقييد الوصول.
-- يمكن مراجعة سجل الأحداث من خلال CloudWatch للتأكد من عدم وجود مشاكل.
+- Use IAM roles with least privilege for Lambda access.
+- Apply bucket policies to restrict access to S3 buckets.
+- Enable logging in CloudWatch for auditing and debugging.
+
+---
 
 ## Cost Optimization
 
-- المشروع يعتمد كليًا على خدمات Serverless والتي تقع ضمن الباقة المجانية AWS Free Tier.
-- لا يتم استخدام خدمات مدفوعة مثل EC2 أو RDS.
+- Uses only serverless and pay-per-use AWS services (S3, Lambda, API Gateway).
+- Eligible for AWS Free Tier for most usage levels.
+
+---
 
 ## Learning Outcomes
 
-- فهم كيفية إنشاء تطبيق Serverless باستخدام AWS.
-- التعامل مع Event-driven Architecture عبر S3 Triggers.
-- تنفيذ دوال Lambda واستخدام مكتبات Python مثل Pillow.
-- تطبيق مفاهيم الأمان والتحكم في الصلاحيات داخل AWS.
+- Build a complete serverless application using AWS.
+- Understand event-driven architecture with S3 triggers and Lambda.
+- Implement secure and scalable storage with S3 and delivery with CloudFront.
+- Learn how to monitor and troubleshoot using CloudWatch.
